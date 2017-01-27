@@ -1,0 +1,141 @@
+var _user$project$LatestVersion$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$none;
+};
+var _user$project$LatestVersion$viewSearchResult = function (result) {
+	return A2(
+		_elm_lang$html$Html$li,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$span,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(
+						_elm_lang$core$Basics$toString(result.version)),
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		});
+};
+var _user$project$LatestVersion$init = {
+	ctor: '_Tuple2',
+	_0: {
+		searchTerm: '',
+		results: {ctor: '[]'}
+	},
+	_1: _elm_lang$core$Platform_Cmd$none
+};
+var _user$project$LatestVersion$Model = F2(
+	function (a, b) {
+		return {searchTerm: a, results: b};
+	});
+var _user$project$LatestVersion$SearchResult = F3(
+	function (a, b, c) {
+		return {groupId: a, artifactId: b, version: c};
+	});
+var _user$project$LatestVersion$decodeResult = A4(
+	_elm_lang$core$Json_Decode$map3,
+	_user$project$LatestVersion$SearchResult,
+	A2(_elm_lang$core$Json_Decode$field, 'groupId', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'artifactId', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'version', _elm_lang$core$Json_Decode$string));
+var _user$project$LatestVersion$decodeResults = _elm_lang$core$Json_Decode$list(_user$project$LatestVersion$decodeResult);
+var _user$project$LatestVersion$SearchComplete = function (a) {
+	return {ctor: 'SearchComplete', _0: a};
+};
+var _user$project$LatestVersion$issueSearch = function (criteria) {
+	var url = A2(_elm_lang$core$Basics_ops['++'], 'http://nexus.containerstore.com/nexus/service/local/lucene/search?a=', criteria);
+	var request = {
+		verb: 'GET',
+		headers: {
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: 'Accept', _1: 'application/json'},
+			_1: {ctor: '[]'}
+		},
+		url: url,
+		body: ''
+	};
+	return A2(
+		_elm_lang$http$Http$send,
+		_user$project$LatestVersion$SearchComplete,
+		A2(_elm_lang$http$Http$get, url, _user$project$LatestVersion$decodeResults));
+};
+var _user$project$LatestVersion$update = F2(
+	function (msg, model) {
+		var _p0 = msg;
+		switch (_p0.ctor) {
+			case 'ChangeSearchTerm':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{searchTerm: _p0._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'PerformSearch':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$LatestVersion$issueSearch(model.searchTerm)
+				};
+			default:
+				if (_p0._0.ctor === 'Ok') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{results: _p0._0._0}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+		}
+	});
+var _user$project$LatestVersion$PerformSearch = {ctor: 'PerformSearch'};
+var _user$project$LatestVersion$ChangeSearchTerm = function (a) {
+	return {ctor: 'ChangeSearchTerm', _0: a};
+};
+var _user$project$LatestVersion$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$input,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Events$onInput(_user$project$LatestVersion$ChangeSearchTerm),
+					_1: {ctor: '[]'}
+				},
+				{ctor: '[]'}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$button,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onClick(_user$project$LatestVersion$PerformSearch),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Search'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$ul,
+						{ctor: '[]'},
+						A2(_elm_lang$core$List$map, _user$project$LatestVersion$viewSearchResult, model.results)),
+					_1: {ctor: '[]'}
+				}
+			}
+		});
+};
+var _user$project$LatestVersion$main = _elm_lang$html$Html$program(
+	{init: _user$project$LatestVersion$init, view: _user$project$LatestVersion$view, update: _user$project$LatestVersion$update, subscriptions: _user$project$LatestVersion$subscriptions})();
